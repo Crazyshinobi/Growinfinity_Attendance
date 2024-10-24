@@ -79,7 +79,7 @@ export const Login = () => {
   return (
     <div className="h-screen loginBg bg-cover bg-center flex items-center justify-center">
       <Toaster />
-      <div className="w-[75%] h-[80%] rounded-lg shadow-xl">
+      <div className="lg:w-[75%] lg:h-[80%] rounded-lg shadow-xl">
         <div className="grid sm:grid-cols-12 h-full">
           <div className="col-span-12 md:col-span-12 lg:col-span-6 h-full bg-white rounded lg:rounded-none lg:rounded-s-lg">
             <div className="p-10 h-full flex flex-col justify-center">
