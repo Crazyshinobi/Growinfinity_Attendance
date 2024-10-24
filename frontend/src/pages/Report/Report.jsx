@@ -221,7 +221,7 @@ export const Report = () => {
                 "Saturday",
               ].map((dayName, index) => (
                 <div key={index} className="border bg-white">
-                  <div className="flex flex-col items-center justify-center text-xs md:text-md md:py-1 lg:py-3 lg:text-xl font-semibold">
+                  <div className="flex flex-col items-center justify-center text-tiny md:text-md md:py-1 lg:py-3 lg:text-xl font-semibold">
                     <p>{dayName}</p>
                   </div>
                 </div>
