@@ -257,7 +257,7 @@ export const Report = () => {
 
                 return (
                   <div key={index} className={`${statusClass}`}>
-                    <div className="flex flex-col items-center justify-center gap-4 py-1 lg:py-8 text-2xl">
+                    <div className="flex flex-col items-center justify-center gap-4 py-1 lg:py-8 text-md lg:text-2xl">
                       <p>{dayNumber}</p>
                     </div>
                   </div>

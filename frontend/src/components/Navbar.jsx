@@ -28,7 +28,7 @@ export const Navbar = () => {
     <nav className="px-8 py-3 flex justify-between items-center shadow-xl relative">
       <div>
         <Link to="/">
-          <img src={logo} alt="Logo" className="w-[200px]" />
+          <img src={logo} alt="Logo" className="w-[140px] lg:w-[200px]" />
         </Link>
       </div>
 
