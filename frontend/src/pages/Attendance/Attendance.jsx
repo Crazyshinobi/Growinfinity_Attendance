@@ -3,13 +3,14 @@ import Cookies from "js-cookie";
 import { Layout } from "../../components/Layout";
 import toast, { Toaster } from "react-hot-toast";
 import axios from "axios";
-import { Button, Chip } from "@mui/material";
+import { Button, Chip, CircularProgress } from "@mui/material"; // Import CircularProgress
 import seeyoutomorrow from "../../assets/images/seeyoutomorrow.png";
 
 export const Attendance = () => {
   const date = new Date();
   const [employee, setEmployee] = useState([]);
   const [attendanceMarked, setAttendanceMarked] = useState({});
+  const [loading, setLoading] = useState(true); // Loading state for fetching employees
   const weekday = [
     "Sunday",
     "Monday",
@@ -23,6 +24,7 @@ export const Attendance = () => {
   const token = Cookies.get("token");
 
   const fetchEmployee = async () => {
+    setLoading(true); // Set loading to true when fetching data
     try {
       const apiUrl = process.env.BASE_URL + "/api/v1/employee";
       const response = await axios(apiUrl, {
@@ -38,6 +40,8 @@ export const Attendance = () => {
     } catch (error) {
       console.log(error);
       toast.error(error);
+    } finally {
+      setLoading(false); // Set loading to false after fetching
     }
   };
 
@@ -97,6 +101,18 @@ export const Attendance = () => {
     fetchEmployee();
     fetchEmployeeAttendance();
   }, []);
+
+  // If loading, show the loader
+  if (loading) {
+    return (
+      <Layout>
+        <Toaster />
+        <div className="bg-gray-50 flex justify-center items-center min-h-screen">
+          <CircularProgress /> {/* Loader is displayed here */}
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <>

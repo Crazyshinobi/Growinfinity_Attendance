@@ -7,13 +7,18 @@ import { Link } from "react-router-dom";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import toast, { Toaster } from "react-hot-toast";
+import CircularProgress from "@mui/material/CircularProgress"; // Import CircularProgress
+
 export const ViewEmployee = () => {
   const token = Cookies.get("token");
   const [employee, setEmployee] = useState([]);
+  const [loading, setLoading] = useState(false); // State for loading
 
-  const apiUrl = process.env.BASE_URL + "/api/v1/employee";
+  const apiUrl = `${process.env.BASE_URL}/api/v1/employee`;
 
   const fetchData = async () => {
+    setLoading(true); // Set loading to true when fetching data
+
     try {
       const response = await axios.get(apiUrl, {
         headers: {
@@ -26,12 +31,15 @@ export const ViewEmployee = () => {
       }
     } catch (error) {
       console.log(error);
+      toast.error("Failed to fetch employee data");
+    } finally {
+      setLoading(false); // Set loading to false when data is fetched
     }
   };
 
   const handleDelete = async (id) => {
     try {
-      const deleteUrl = apiUrl + `/${id}`;
+      const deleteUrl = `${apiUrl}/${id}`;
 
       const response = await axios.delete(deleteUrl, {
         headers: {
@@ -41,6 +49,7 @@ export const ViewEmployee = () => {
 
       if (response.data.success) {
         toast.success(response.data.message);
+        fetchData(); // Re-fetch employee data after deletion
       } else {
         console.log(response);
       }
@@ -53,7 +62,7 @@ export const ViewEmployee = () => {
   // Fetch all data
   useEffect(() => {
     fetchData();
-  }, [employee]);
+  }, []);
 
   return (
     <>
@@ -61,7 +70,11 @@ export const ViewEmployee = () => {
       <Layout>
         <div className="bg-gray-50">
           <div className="grid sm:grid-cols-12 min-h-screen">
-            {employee &&
+            {loading ? ( // Conditional rendering for loading
+              <div className="col-span-12 flex justify-center items-center h-[90vh]">
+                <CircularProgress />
+              </div>
+            ) : (
               employee.map((item) => {
                 return (
                   <div key={item._id} className="col-span-12 md:col-span-6 lg:col-span-3">
@@ -81,13 +94,7 @@ export const ViewEmployee = () => {
                           <li>
                             <strong>Date of Joining: </strong>{" "}
                             {((date) =>
-                              `${String(date.getDate()).padStart(
-                                2,
-                                "0"
-                              )}/${String(date.getMonth() + 1).padStart(
-                                2,
-                                "0"
-                              )}/${date.getFullYear()}`)(
+                              `${String(date.getDate()).padStart(2, "0")}/${String(date.getMonth() + 1).padStart(2, "0")}/${date.getFullYear()}`)(
                               new Date(item.date_of_joining)
                             )}
                           </li>
@@ -111,7 +118,6 @@ export const ViewEmployee = () => {
                                 variant="outlined"
                                 fullWidth
                               >
-                                {" "}
                                 Edit
                               </Button>
                             </Link>
@@ -124,7 +130,6 @@ export const ViewEmployee = () => {
                               variant="contained"
                               fullWidth
                             >
-                              {" "}
                               Delete
                             </Button>
                           </div>
@@ -133,7 +138,8 @@ export const ViewEmployee = () => {
                     </div>
                   </div>
                 );
-              })}
+              })
+            )}
           </div>
         </div>
       </Layout>

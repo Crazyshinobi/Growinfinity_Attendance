@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import toast, { Toaster } from "react-hot-toast";
 import Cookies from "js-cookie";
+import LoadingButton from "@mui/lab/LoadingButton";
 
 export const Report = () => {
   const date = new Date();
@@ -21,6 +22,7 @@ export const Report = () => {
   const [selectedMonth, setSelectedMonth] = useState(date.getMonth() + 1); // Month starts from 0
   const [selectedYear, setSelectedYear] = useState(date.getFullYear());
   const [response, setResponse] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const getAllDatesInMonth = (year, month) => {
     let date = new Date(year, month, 1); // Start at the 1st of the month
@@ -63,6 +65,8 @@ export const Report = () => {
         return;
       }
 
+      setLoading(true);
+
       const month = String(selectedMonth).padStart(2, "0"); // Ensure two digits
       const apiUrl = `${process.env.BASE_URL}/api/v1/reports?month=${selectedYear}-${month}&employeeId=${selectedEmployeeId}`;
 
@@ -73,6 +77,7 @@ export const Report = () => {
       });
 
       if (response.data.success) {
+        setLoading(false);
         toast.success("Report fetched successfully");
         setEmployeeReport(response.data.report);
         const selectedEmployee = employee.find(
@@ -86,6 +91,8 @@ export const Report = () => {
       console.log(error);
       toast.error("An error occurred while fetching the report");
     }
+
+    setLoading(false)
   };
 
   const calculateTotals = () => {
@@ -198,14 +205,23 @@ export const Report = () => {
                 </FormControl>
               </div>
               <div className="col-span-12 lg:col-span-3 m-5">
-                <Button
-                  onClick={fetchReport}
-                  variant="contained"
-                  color="success"
-                  fullWidth
-                >
-                  Fetch Report
-                </Button>
+                {
+                  loading ? <LoadingButton loading size="large"
+                    variant="contained"
+                    color="success"
+                    fullWidth>
+                    Submit
+                  </LoadingButton> :
+                    <Button
+                      onClick={fetchReport}
+                      variant="contained"
+                      color="success"
+                      fullWidth
+                    >
+                      Fetch Report
+                    </Button>
+                }
+
               </div>
             </div>
 
@@ -247,12 +263,12 @@ export const Report = () => {
                     report.status === "present"
                       ? "border border-green-500 bg-green-200"
                       : report.status === "absent"
-                      ? "border border-red-500 bg-red-200"
-                      : report.status === "half_day"
-                      ? "border border-purple-500 bg-purple-200"
-                      : report.status === "holiday"
-                      ? "border border-orange-500 bg-orange-200"
-                      : "";
+                        ? "border border-red-500 bg-red-200"
+                        : report.status === "half_day"
+                          ? "border border-purple-500 bg-purple-200"
+                          : report.status === "holiday"
+                            ? "border border-orange-500 bg-orange-200"
+                            : "";
                 }
 
                 return (

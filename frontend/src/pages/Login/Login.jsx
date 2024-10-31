@@ -15,11 +15,13 @@ import Cookies from "js-cookie";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
+import LoadingButton from "@mui/lab/LoadingButton";
 
 export const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
@@ -38,9 +40,11 @@ export const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     if (email == "" || password == "") {
       toast.error("Please provide both email & password !");
+      setLoading(false);
       return;
     }
 
@@ -55,6 +59,7 @@ export const Login = () => {
           secure: true,
           sameSite: "Strict",
         });
+        setLoading(false);
         navigate("/", { state: { loginSuccess: true } });
       } else {
         toast.error("Invalid credentials");
@@ -74,6 +79,7 @@ export const Login = () => {
 
     setEmail("");
     setPassword("");
+    setLoading(false);
   };
 
   return (
@@ -131,15 +137,24 @@ export const Login = () => {
                   </FormControl>
                 </div>
                 <div>
-                  <Button
-                    onClick={handleSubmit}
-                    variant="contained"
-                    size="large"
-                    sx={{ backgroundColor: "#04012f", padding: "13px" }}
-                    fullWidth
-                  >
-                    Login
-                  </Button>
+                  {
+                    loading ?
+                      <LoadingButton loading size="large"
+                        sx={{ padding: "13px" }}
+                        fullWidth variant="outlined">
+                        Submit
+                      </LoadingButton>
+                      : 
+                      <Button
+                        onClick={handleSubmit}
+                        variant="contained"
+                        size="large"
+                        sx={{ backgroundColor: "#04012f", padding: "13px" }}
+                        fullWidth
+                      >
+                        Login
+                      </Button>
+                  }
                 </div>
               </form>
             </div>

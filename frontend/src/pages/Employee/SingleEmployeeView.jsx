@@ -4,14 +4,17 @@ import { useParams } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import Cookies from "js-cookie";
 import axios from "axios";
+import CircularProgress from "@mui/material/CircularProgress"; // Import CircularProgress
 
 export const SingleEmployeeView = () => {
     const { id } = useParams();
     const apiUrl = `${process.env.BASE_URL}/api/v1/employee/${id}`;
     const token = Cookies.get("token");
     const [singleEmployee, setSingleEmployee] = useState(null); // Initialize to null for better handling
+    const [loading, setLoading] = useState(true); // Initialize loading state
 
     const fetchDetails = async () => {
+        setLoading(true); // Set loading to true when fetching data
         try {
             const response = await axios.get(apiUrl, {
                 headers: {
@@ -28,6 +31,8 @@ export const SingleEmployeeView = () => {
         } catch (error) {
             console.error(error);
             toast.error('Something went wrong!');
+        } finally {
+            setLoading(false); // Set loading to false after fetching
         }
     };
 
@@ -35,14 +40,26 @@ export const SingleEmployeeView = () => {
         fetchDetails();
     }, []);
 
-    // Handle case when singleEmployee is null
+    // Handle case when singleEmployee is null and loading is true
+    if (loading) {
+        return (
+            <Layout>
+                <Toaster />
+                <div className="bg-gray-50 flex justify-center items-center min-h-screen">
+                    <CircularProgress /> {/* Loader is displayed here */}
+                </div>
+            </Layout>
+        );
+    }
+
+    // Handle case when singleEmployee is null (not loading anymore)
     if (!singleEmployee) {
         return (
             <Layout>
                 <Toaster />
                 <div className="bg-gray-50">
                     <div className="bg-white rounded p-5 m-5 shadow-lg">
-                        <p>Loading employee details...</p>
+                        <p>Employee details not found.</p>
                     </div>
                 </div>
             </Layout>
@@ -121,10 +138,8 @@ export const SingleEmployeeView = () => {
                                         <span className="text-gray-900">{singleEmployee.address}</span>
                                     </li>
                                 </ul>
-
                             </div>
-                            <div className="col-span-12 lg:col-span-3 flex flex-col items-center lg:justify-start lg:items-center  ">
-
+                            <div className="col-span-12 lg:col-span-3 flex flex-col items-center lg:justify-start lg:items-center">
                                 <img
                                     src={`${process.env.BASE_URL}/uploads${singleEmployee.image}`}
                                     alt={singleEmployee.name}
