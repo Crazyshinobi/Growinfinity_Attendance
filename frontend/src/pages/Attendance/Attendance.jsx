@@ -4,7 +4,6 @@ import { Layout } from "../../components/Layout";
 import toast, { Toaster } from "react-hot-toast";
 import axios from "axios";
 import { Button, Chip, CircularProgress } from "@mui/material"; // Import CircularProgress
-import seeyoutomorrow from "../../assets/images/seeyoutomorrow.png";
 
 export const Attendance = () => {
   const date = new Date();

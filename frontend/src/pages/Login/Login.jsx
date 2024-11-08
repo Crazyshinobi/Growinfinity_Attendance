@@ -42,7 +42,7 @@ export const Login = () => {
     e.preventDefault();
     setLoading(true);
 
-    if (email == "" || password == "") {
+    if (email === "" || password === "") {
       toast.error("Please provide both email & password !");
       setLoading(false);
       return;
@@ -53,12 +53,17 @@ export const Login = () => {
         email: email,
         password: password,
       });
+
       if (response.data.success) {
+        const expirationDate = new Date();
+        expirationDate.setFullYear(expirationDate.getFullYear() + 20); // Set expiration to 20 years in the future
+
         Cookies.set("token", response.data.token, {
-          expires: 1 / 24,
+          expires: expirationDate,
           secure: true,
           sameSite: "Strict",
         });
+
         setLoading(false);
         navigate("/", { state: { loginSuccess: true } });
       } else {
@@ -137,24 +142,27 @@ export const Login = () => {
                   </FormControl>
                 </div>
                 <div>
-                  {
-                    loading ?
-                      <LoadingButton loading size="large"
-                        sx={{ padding: "13px" }}
-                        fullWidth variant="outlined">
-                        Submit
-                      </LoadingButton>
-                      : 
-                      <Button
-                        onClick={handleSubmit}
-                        variant="contained"
-                        size="large"
-                        sx={{ backgroundColor: "#04012f", padding: "13px" }}
-                        fullWidth
-                      >
-                        Login
-                      </Button>
-                  }
+                  {loading ? (
+                    <LoadingButton
+                      loading
+                      size="large"
+                      sx={{ padding: "13px" }}
+                      fullWidth
+                      variant="outlined"
+                    >
+                      Submit
+                    </LoadingButton>
+                  ) : (
+                    <Button
+                      onClick={handleSubmit}
+                      variant="contained"
+                      size="large"
+                      sx={{ backgroundColor: "#04012f", padding: "13px" }}
+                      fullWidth
+                    >
+                      Login
+                    </Button>
+                  )}
                 </div>
               </form>
             </div>

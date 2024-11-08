@@ -10,13 +10,16 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@date-io/date-fns": "^3.0.0",
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
     "@mui/icons-material": "^6.1.4",
     "@mui/lab": "^6.0.0-beta.14",
     "@mui/material": "^6.1.4",
+    "@mui/x-date-pickers": "^6.0.0",
     "axios": "^1.7.7",
     "chart.js": "^4.4.5",
+    "date-fns": "^2.29.2",
     "file-saver": "^2.0.5",
     "js-cookie": "^3.0.5",
     "react": "^18.3.1",

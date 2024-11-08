@@ -5,9 +5,22 @@ const Employee = require("../model/Employee");
 // Create Attendance
 const createAttendance = async (req, res) => {
   try {
-    const { employeeId, date, status } = req.body; // Destructure the required fields from the request body
+    const { employeeId, date, status, remarks } = req.body;
 
-    // Create a new attendance record
+    // Check if attendance already exists for the given employee and date
+    const existingAttendance = await Attendance.findOne({
+      employeeId: employeeId,
+      date: date,
+    });
+
+    if (existingAttendance) {
+      return res.status(400).json({
+        success: false,
+        message: "Attendance for this date is already recorded.",
+      });
+    }
+
+    // Create a new attendance record if no existing record is found
     const newAttendance = new Attendance({
       employeeId,
       date,
@@ -21,6 +34,39 @@ const createAttendance = async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+// Update Attendance
+const updateAttendance = async (req, res) => {
+  try {
+    const { employeeId, date, status, remarks } = req.body; // Extract the required fields from the request body
+
+    // Find and update the attendance record
+    const updatedAttendance = await Attendance.findOneAndUpdate(
+      { employeeId: employeeId, date: date },
+      { status: status },
+      { remarks: remarks},
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedAttendance) {
+      // If no matching record is found, send an error response
+      return res.status(404).json({
+        success: false,
+        message: "Attendance record not found for the specified date.",
+      });
+    }
+
+    // If the update is successful, send a success response
+    res.status(200).json({
+      success: true,
+      message: "Attendance record updated successfully.",
+      data: updatedAttendance,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -68,4 +114,5 @@ const getAllAttendance = async (req, res) => {
     });
   }
 };
-module.exports = { createAttendance, checkTodayAttendance, getAllAttendance };
+
+module.exports = { createAttendance, updateAttendance, checkTodayAttendance, getAllAttendance };
