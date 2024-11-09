@@ -92,8 +92,8 @@ export const Login = () => {
       <Toaster />
       <div className="lg:w-[75%] lg:h-[80%] rounded-lg shadow-xl">
         <div className="grid sm:grid-cols-12 h-full">
-          <div className="col-span-12 md:col-span-12 lg:col-span-6 h-full bg-white rounded lg:rounded-none lg:rounded-s-lg">
-            <div className="p-10 h-full flex flex-col justify-center">
+          <div className="col-span-12 m-5 lg:m-0 md:col-span-12 lg:col-span-6 h-full bg-white rounded lg:rounded-none lg:rounded-s-lg">
+            <div className="p-5 lg:p-10 h-full flex flex-col justify-center">
               <h2 className="text-center text-xl lg:text-3xl font-semibold">
                 Welcome to Attendance Portal!
               </h2>
