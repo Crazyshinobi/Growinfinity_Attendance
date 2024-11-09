@@ -38,19 +38,26 @@ const createEmployee = async (req, res) => {
       bank_details,
     } = req.body;
 
-    // Check if file is uploaded
-    if (!req.file) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Image is required" });
+    // Check if file is uploaded and handle the image path
+    let image = null; // Initialize image as null
+    if (req.file) {
+      image = `/images/${req.file.filename}`; // Store image path from the upload
     }
 
-    const image = `/images/${req.file.filename}`; // Store image path from the upload
+    // Prepare bank details, ensuring they are optional
+    const employeeBankDetails = bank_details
+      ? {
+          account_holder_name: bank_details.account_holder_name,
+          bank_name: bank_details.bank_name,
+          account_number: bank_details.account_number,
+          IFSC: bank_details.IFSC,
+        }
+      : null; // If no bank details, set as null
 
     // Create new employee object
     const employee = new Employee({
       name,
-      image, // Store uploaded image path
+      image, // Image is optional now
       name_of_TL,
       salary,
       date_of_joining,
@@ -58,13 +65,8 @@ const createEmployee = async (req, res) => {
       mobile,
       emergency_mobile,
       address,
-      aadhar_number,
-      bank_details: {
-        account_holder_name: bank_details.account_holder_name,
-        bank_name: bank_details.bank_name,
-        account_number: bank_details.account_number,
-        IFSC: bank_details.IFSC,
-      },
+      aadhar_number, // Aadhar number is optional
+      bank_details: employeeBankDetails, // Bank details are optional
     });
 
     // Save employee to the database

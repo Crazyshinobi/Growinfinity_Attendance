@@ -38,6 +38,7 @@ export const Navbar = () => {
         <NavLink to="/add-employee">Add Employee</NavLink>
         <NavLink to="/view-employee">View Employee</NavLink>
         <NavLink to="/attendance">Attendance</NavLink>
+        <NavLink to="/update-attendance">Update Attendance</NavLink>
         <NavLink to="/reports">Reports</NavLink>
         <NavLink to="/download-report">Downloads</NavLink>
         <div>
@@ -73,6 +74,7 @@ export const Navbar = () => {
           <NavLink to="/add-employee" onClick={toggleMenu}>Add Employee</NavLink>
           <NavLink to="/view-employee" onClick={toggleMenu}>View Employee</NavLink>
           <NavLink to="/attendance" onClick={toggleMenu}>Attendance</NavLink>
+          <NavLink to="/update-attendance" onClick={toggleMenu}>Update Attendance</NavLink>
           <NavLink to="/reports" onClick={toggleMenu}>Reports</NavLink>
           <NavLink to="/download-report" onClick={toggleMenu}>Downloads</NavLink>
           <div>

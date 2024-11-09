@@ -115,10 +115,10 @@ export const AddEmployee = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.image) {
-      toast.error("Please upload an image.");
-      return;
-    }
+    // if (!formData.image) {
+    //   toast.error("Please upload an image.");
+    //   return;
+    // }
 
     await addEmployee(); // Add the employee
   };
@@ -129,7 +129,7 @@ export const AddEmployee = () => {
       <Layout>
         <div className="bg-gray-50">
           <div className="grid sm:grid-cols-12">
-            <div className="bg-white rounded p-5 m-5 shadow-lg col-span-12">
+            <div className="bg-white rounded p-5 lg:m-5 shadow-lg col-span-12">
               <form onSubmit={handleSubmit}>
                 <div className="grid sm:grid-cols-12">
                   <div className="col-span-12 p-3">
@@ -227,7 +227,7 @@ export const AddEmployee = () => {
                       variant="outlined"
                       value={formData.aadhar_number}
                       onChange={handleChange}
-                      required
+                      // required
                       fullWidth
                     />
                   </div>
@@ -258,7 +258,7 @@ export const AddEmployee = () => {
                       variant="outlined"
                       value={formData.bank_details.account_holder_name}
                       onChange={handleChange}
-                      required
+                      // required
                       fullWidth
                     />
                   </div>
@@ -270,7 +270,7 @@ export const AddEmployee = () => {
                       variant="outlined"
                       value={formData.bank_details.bank_name}
                       onChange={handleChange}
-                      required
+                      // required
                       fullWidth
                     />
                   </div>
@@ -282,7 +282,7 @@ export const AddEmployee = () => {
                       variant="outlined"
                       value={formData.bank_details.account_number}
                       onChange={handleChange}
-                      required
+                      // required
                       fullWidth
                     />
                   </div>
@@ -294,7 +294,7 @@ export const AddEmployee = () => {
                       variant="outlined"
                       value={formData.bank_details.IFSC}
                       onChange={handleChange}
-                      required
+                      // required
                       fullWidth
                     />
                   </div>
@@ -311,7 +311,7 @@ export const AddEmployee = () => {
                       onChange={handleImageChange}
                       style={{ opacity: 0, position: "absolute", zIndex: -1 }}
                       id="image-upload"
-                      required
+                      // required
                     />
 
                     <label htmlFor="image-upload">

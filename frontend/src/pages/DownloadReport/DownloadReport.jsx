@@ -143,7 +143,7 @@ export const DownloadReport = () => {
       <Toaster />
       <Layout>
         <div className="bg-gray-50">
-          <div className="bg-white rounded p-5 m-5 shadow-lg h-screen flex flex-col items-center justify-center">
+          <div className="bg-white rounded p-5 lg:m-5 shadow-lg h-screen flex flex-col items-center justify-center">
             <h1 className="text-center uppercase text-2xl lg:text-3xl font-bold pt-8 pb-10">
               Download Report
             </h1>

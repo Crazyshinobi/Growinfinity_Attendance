@@ -25,6 +25,7 @@ const createAttendance = async (req, res) => {
       employeeId,
       date,
       status,
+      remarks,
     });
 
     // Save the attendance record to the database
@@ -34,39 +35,6 @@ const createAttendance = async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(400).json({ success: false, message: error.message });
-  }
-};
-
-// Update Attendance
-const updateAttendance = async (req, res) => {
-  try {
-    const { employeeId, date, status, remarks } = req.body; // Extract the required fields from the request body
-
-    // Find and update the attendance record
-    const updatedAttendance = await Attendance.findOneAndUpdate(
-      { employeeId: employeeId, date: date },
-      { status: status },
-      { remarks: remarks},
-      { new: true } // Return the updated document
-    );
-
-    if (!updatedAttendance) {
-      // If no matching record is found, send an error response
-      return res.status(404).json({
-        success: false,
-        message: "Attendance record not found for the specified date.",
-      });
-    }
-
-    // If the update is successful, send a success response
-    res.status(200).json({
-      success: true,
-      message: "Attendance record updated successfully.",
-      data: updatedAttendance,
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -95,6 +63,7 @@ const checkTodayAttendance = async (req, res) => {
   });
 };
 
+// Get all attendance
 const getAllAttendance = async (req, res) => {
   try {
     const report = await Attendance.find()
@@ -115,4 +84,114 @@ const getAllAttendance = async (req, res) => {
   }
 };
 
-module.exports = { createAttendance, updateAttendance, checkTodayAttendance, getAllAttendance };
+const getAttendanceByDate = async (req, res) => {
+  try {
+    const { date } = req.query;
+
+    if (!date) {
+      return res.status(400).json({
+        success: false,
+        message: "Date is required.",
+      });
+    }
+
+    // Find attendance records for the specified date
+    const attendanceRecords = await Attendance.find({ date })
+      .populate("employeeId", "name") // Populate employeeId with employee's name
+      .exec();
+
+    res.status(200).json({
+      success: true,
+      message: "Attendance records fetched successfully",
+      attendance: attendanceRecords,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+};
+
+const updateAttendance = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status, remarks } = req.body;
+
+    if (!status) {
+      return res.status(400).json({
+        success: false,
+        message: "Status is required.",
+      });
+    }
+
+    // Find the attendance record by ID
+    const attendance = await Attendance.findById(id);
+
+    if (!attendance) {
+      return res.status(404).json({
+        success: false,
+        message: "Attendance record not found.",
+      });
+    }
+
+    attendance.status = status;
+
+    if (remarks !== undefined) {
+      attendance.remarks = remarks;
+    }
+    await attendance.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Attendance updated successfully.",
+      data: attendance,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
+const getSingleAttendance = async (req, res) => {
+  try {
+    const { id } = req.params; // Extract the ID from the request parameters
+
+    // Find the attendance document by its ID
+    const attendance = await Attendance.findById(id);
+
+    if (!attendance) {
+      return res.status(404).json({
+        success: false,
+        message: "Attendance not found",
+      });
+    }
+
+    // If attendance found, send the response with attendance data
+    return res.status(200).json({
+      success: true,
+      attendance,
+    });
+  } catch (error) {
+    console.log(error);
+    // Handle any errors that occur during the process
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
+module.exports = {
+  createAttendance,
+  checkTodayAttendance,
+  getAllAttendance,
+  getAttendanceByDate,
+  updateAttendance,
+  getSingleAttendance
+};

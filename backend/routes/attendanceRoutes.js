@@ -3,7 +3,9 @@ const {
   createAttendance,
   checkTodayAttendance,
   getAllAttendance,
-  updateAttendance, // Import the update function
+  getAttendanceByDate,
+  updateAttendance,
+  getSingleAttendance,
 } = require("../controller/attendanceController");
 const adminAuth = require("../middleware/adminAuth");
 
@@ -14,9 +16,11 @@ router
   .post(adminAuth, createAttendance)
   .get(adminAuth, getAllAttendance);
 
-router
-  .route("/:attendanceId") 
-  .patch(adminAuth, updateAttendance);
+router.route("/get-attendance/:id").get(adminAuth, getSingleAttendance);
+
+router.route("/update-attendance/:id").put(adminAuth, updateAttendance);
+
+router.route("/date").get(adminAuth, getAttendanceByDate);
 
 router.route("/today").get(checkTodayAttendance);
 

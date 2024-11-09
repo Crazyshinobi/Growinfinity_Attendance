@@ -12,6 +12,7 @@ import { Report } from "./pages/Report/Report";
 import { SingleEmployeeView } from "./pages/Employee/SingleEmployeeView";
 import { UpdateEmployee } from "./pages/Employee/UpdateEmployee";
 import { DownloadReport } from "./pages/DownloadReport/DownloadReport";
+import { UpdateAttendance } from "./pages/Attendance/UpdateAttendance";
 
 export const App = () => {
   return (
@@ -64,6 +65,14 @@ export const App = () => {
           element={
             <PrivateRoute>
               <Attendance />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/update-attendance"
+          element={
+            <PrivateRoute>
+              <UpdateAttendance />
             </PrivateRoute>
           }
         />

@@ -8,7 +8,6 @@ const employeeSchema = new mongoose.Schema({
   },
   image: {
     type: String,
-    required: true
   },
   salary: {
     type: Number,
@@ -40,24 +39,23 @@ const employeeSchema = new mongoose.Schema({
   },
   aadhar_number: {
     type: Number,
-    required: true
   },
   bank_details: {
     account_holder_name: {
       type: String,
-      required: true
+     
     },
     bank_name: {
       type: String,
-      required: true
+      
     },
     account_number: {
       type: Number,
-      required: true
+     
     },
     IFSC: {
       type: String,
-      required: true
+      
     }
   }
 });

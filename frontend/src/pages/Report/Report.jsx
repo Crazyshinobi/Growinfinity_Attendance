@@ -136,7 +136,7 @@ export const Report = () => {
       <Toaster />
       <Layout>
         <div className="bg-gray-50">
-          <div className="bg-white rounded py-5 px-0 md:px-5 lg:px-20 m-5  shadow-lg">
+          <div className="bg-white rounded py-5 px-0 md:px-5 lg:px-20 lg:m-5  shadow-lg">
             <h1 className="text-center uppercase text-2xl lg:text-4xl font-bold pt-8 pb-10">
               Attendance Report
             </h1>

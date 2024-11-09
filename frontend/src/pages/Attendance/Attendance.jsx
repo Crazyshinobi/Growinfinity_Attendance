@@ -3,13 +3,16 @@ import Cookies from "js-cookie";
 import { Layout } from "../../components/Layout";
 import toast, { Toaster } from "react-hot-toast";
 import axios from "axios";
-import { Button, Chip, CircularProgress } from "@mui/material"; // Import CircularProgress
+import { Button, Chip, CircularProgress, TextField } from "@mui/material"; // Import CircularProgress
 
 export const Attendance = () => {
   const date = new Date();
-  const [employee, setEmployee] = useState([]);
-  const [attendanceMarked, setAttendanceMarked] = useState({});
+  const [employee, setEmployee] = useState([]); // Employee list
+  const [attendanceMarked, setAttendanceMarked] = useState({}); // Track attendance status for each employee
+  const [remarks, setRemarks] = useState({}); // Track remarks for each employee
   const [loading, setLoading] = useState(true); // Loading state for fetching employees
+  const [statusTemp, setStatusTemp] = useState({}); // Temporary state to store status before submission
+  const [loadingSubmit, setLoadingSubmit] = useState({}); // Track loading state for individual employee submissions
   const weekday = [
     "Sunday",
     "Monday",
@@ -45,10 +48,14 @@ export const Attendance = () => {
   };
 
   const submitIndividualAttendance = async (employeeId, status) => {
+    // Set loading for this employee to true
+    setLoadingSubmit((prev) => ({ ...prev, [employeeId]: true }));
+
     const attendanceData = {
       employeeId: employeeId,
       date: date.toISOString().split("T")[0],
       status: status.toLowerCase().replace(" ", "_"),
+      remarks: remarks[employeeId] || "", // Send remarks with the attendance data
     };
 
     try {
@@ -62,13 +69,19 @@ export const Attendance = () => {
 
       if (response.data.success) {
         toast.success(`Attendance for ${employeeId} marked as ${status}!`);
-        setAttendanceMarked((prev) => ({ ...prev, [employeeId]: status })); // Mark attendance for this employee
+        // Update attendanceMarked with the new status
+        setAttendanceMarked((prev) => ({ ...prev, [employeeId]: status }));
+        // Update statusTemp with the submitted status to reflect the color change
+        setStatusTemp((prev) => ({ ...prev, [employeeId]: status }));
       } else {
         toast.error("Failed to submit attendance for this employee");
       }
     } catch (error) {
       console.log(error);
       toast.error("Error occurred while submitting attendance");
+    } finally {
+      // Set loading for this employee to false after submission
+      setLoadingSubmit((prev) => ({ ...prev, [employeeId]: false }));
     }
   };
 
@@ -87,6 +100,8 @@ export const Attendance = () => {
           return acc;
         }, {});
         setAttendanceMarked(attendanceMap);
+        // Sync statusTemp with attendanceMarked when attendance is fetched
+        setStatusTemp(attendanceMap);
       } else {
         toast.error("Failed to fetch today's attendance");
       }
@@ -94,6 +109,20 @@ export const Attendance = () => {
       console.log(error);
       toast.error("Error occurred while fetching attendance");
     }
+  };
+
+  const handleRemarksChange = (employeeId, value) => {
+    setRemarks((prev) => ({
+      ...prev,
+      [employeeId]: value,
+    }));
+  };
+
+  const handleStatusChange = (employeeId, status) => {
+    setStatusTemp((prev) => ({
+      ...prev,
+      [employeeId]: status,
+    }));
   };
 
   useEffect(() => {
@@ -135,14 +164,24 @@ export const Attendance = () => {
                           S. No.
                         </p>
                       </div>
-                      <div className="col-span-3 border flex justify-center items-center">
+                      <div className="col-span-2 border flex justify-center items-center">
                         <h3 className="font-bold  text-md lg:text-lg py-3">
                           Employee Name
                         </h3>
                       </div>
-                      <div className="border col-span-8 flex justify-around items-center gap-10">
+                      <div className="border col-span-5 flex justify-around items-center gap-10">
                         <h3 className="font-bold text-md lg:text-lg py-3">
                           Attendance Status
+                        </h3>
+                      </div>
+                      <div className="border col-span-3 flex justify-center items-center">
+                        <h3 className="font-bold text-md lg:text-lg py-3">
+                          Remarks
+                        </h3>
+                      </div>
+                      <div className="border col-span-1 flex justify-center items-center">
+                        <h3 className="font-bold text-md lg:text-lg py-3">
+                          Action
                         </h3>
                       </div>
                     </div>
@@ -153,14 +192,23 @@ export const Attendance = () => {
                         <div className="col-span-1 border flex items-center">
                           <p className="text-md lg:text-xl ps-8">{index + 1}</p>
                         </div>
-                        <div className="col-span-3 border flex gap-10 justify-center items-center">
-                          <h3 className="text-md lg:text-lg py-3">
-                            {item.name}
-                          </h3>
+                        <div className="col-span-2 border flex gap-10 justify-center items-center">
+                          <h3 className="text-md py-3">{item.name}</h3>
                         </div>
-                        <div className="border col-span-8 flex justify-around items-center gap-4 lg:gap-10">
+                        <div className="border col-span-5 flex justify-around items-center gap-4 lg:gap-10">
                           {attendanceMarked[item._id] ? (
-                            <span className="text-green-500 font-bold">
+                            // Display the colorized text for attendance status
+                            <span
+                              className={`font-bold ${
+                                attendanceMarked[item._id] === "Present"
+                                  ? "text-green-500"
+                                  : attendanceMarked[item._id] === "Absent"
+                                  ? "text-red-500"
+                                  : attendanceMarked[item._id] === "Half Day"
+                                  ? "text-purple-500"
+                                  : "text-gray-500"
+                              }`}
+                            >
                               Attendance marked as {attendanceMarked[item._id]}{" "}
                               for today!
                             </span>
@@ -169,46 +217,84 @@ export const Attendance = () => {
                               <Chip
                                 label="Present"
                                 variant="outlined"
-                                color="default"
+                                color={
+                                  statusTemp[item._id] === "Present"
+                                    ? "success"
+                                    : "default"
+                                }
                                 onClick={() =>
-                                  submitIndividualAttendance(
-                                    item._id,
-                                    "Present"
-                                  )
+                                  handleStatusChange(item._id, "Present")
                                 }
                               />
                               <Chip
                                 label="Absent"
                                 variant="outlined"
-                                color="default"
+                                color={
+                                  statusTemp[item._id] === "Absent"
+                                    ? "error"
+                                    : "default"
+                                }
                                 onClick={() =>
-                                  submitIndividualAttendance(item._id, "Absent")
+                                  handleStatusChange(item._id, "Absent")
                                 }
                               />
                               <Chip
                                 label="Half Day"
                                 variant="outlined"
-                                color="default"
+                                color={
+                                  statusTemp[item._id] === "Half Day"
+                                    ? "secondary"
+                                    : "default"
+                                }
                                 onClick={() =>
-                                  submitIndividualAttendance(
-                                    item._id,
-                                    "Half Day"
-                                  )
+                                  handleStatusChange(item._id, "Half Day")
                                 }
                               />
                               <Chip
                                 label="Holiday"
                                 variant="outlined"
-                                color="default"
+                                color={
+                                  statusTemp[item._id] === "Holiday"
+                                    ? "warning"
+                                    : "default"
+                                }
                                 onClick={() =>
-                                  submitIndividualAttendance(
-                                    item._id,
-                                    "Holiday"
-                                  )
+                                  handleStatusChange(item._id, "Holiday")
                                 }
                               />
                             </>
                           )}
+                        </div>
+                        <div className="border col-span-3 flex justify-center items-center">
+                          <textarea
+                            className="w-[100%] outline-none px-3 py-2"
+                            onChange={(e) =>
+                              handleRemarksChange(item._id, e.target.value)
+                            }
+                            value={remarks[item._id] || ""}
+                            name="remarks"
+                            disabled={attendanceMarked[item._id]} // Disable remarks if attendance is already marked
+                          ></textarea>
+                        </div>
+                        <div className="border col-span-1 flex justify-center items-center">
+                          <Button
+                            size="small"
+                            variant="contained"
+                            color="success"
+                            onClick={() =>
+                              submitIndividualAttendance(
+                                item._id,
+                                statusTemp[item._id] || "Present"
+                              )
+                            }
+                            disabled={attendanceMarked[item._id]} // Disable submit button if attendance is already marked
+                          >
+                            {loadingSubmit[item._id] ? (
+                              <CircularProgress size={24} color="inherit" />
+                            ) : (
+                              "Submit"
+                            )}
+                          </Button>
                         </div>
                       </div>
                     </div>

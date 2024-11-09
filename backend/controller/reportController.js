@@ -36,43 +36,6 @@ const getmonthlyReport = async (req, res) => {
   }
 };
 
-const getSingleDayReport = async (req, res) => {
-  try {
-    const { date } = req.query;
-
-    if (!date) {
-      return res.status(400).json({
-        success: false,
-        message: "Date is required",
-      });
-    }
-
-    const reportDate = new Date(date); // Parse the date from query
-    const startDate = new Date(reportDate.setHours(0, 0, 0, 0)); // Set to the beginning of the day (00:00:00)
-    const endDate = new Date(reportDate.setHours(23, 59, 59, 999)); // Set to the end of the day (23:59:59)
-
-    // Query attendance for all employees on the given day
-    const report = await Attendance.find({
-      date: {
-        $gte: startDate,
-        $lt: endDate,
-      },
-    }).populate("employeeId", "name");
-
-    res.status(200).json({
-      success: true,
-      report,
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-      error,
-    });
-  }
-};
-
 const getSingleMonthReport = async (req, res) => {
   try {
     const { month } = req.query;
@@ -107,4 +70,4 @@ const getSingleMonthReport = async (req, res) => {
   }
 };
 
-module.exports = { getmonthlyReport, getSingleDayReport, getSingleMonthReport };
+module.exports = { getmonthlyReport, getSingleMonthReport };
