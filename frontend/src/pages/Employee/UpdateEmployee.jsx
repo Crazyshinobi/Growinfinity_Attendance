@@ -79,7 +79,6 @@ export const UpdateEmployee = () => {
     e.preventDefault();
     try {
       
-      console.log('formData', formData)
 
       const response = await axios.patch(apiUrl, formData, {
         headers: {

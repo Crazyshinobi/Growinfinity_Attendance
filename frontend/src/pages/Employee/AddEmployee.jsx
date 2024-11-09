@@ -70,8 +70,6 @@ export const AddEmployee = () => {
   const addEmployee = async () => {
     try {
       setLoading(true); // Start loading
-      console.log(apiUrl);
-      console.log("frontend form data", dataToSubmit);
       const response = await axios.post(apiUrl, dataToSubmit, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -101,7 +99,6 @@ export const AddEmployee = () => {
         });
         setImagePreview("");
       } else {
-        console.log(formData);
         toast.error("Failed to add employee");
       }
     } catch (error) {
