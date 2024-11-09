@@ -120,7 +120,7 @@ export const UpdateAttendance = () => {
       <Toaster />
       <Layout>
         <div className="bg-gray-50">
-          <div className="bg-white rounded p-5 m-5 shadow-lg">
+          <div className="bg-white rounded p-5 lg:m-5 shadow-lg">
             <div className="min-h-screen">
               <div className="mb-4">
                 <label
