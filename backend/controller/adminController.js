@@ -26,7 +26,7 @@ const loginAdmin = async (req, res) => {
       { id: admin._id, email: admin.email },
       process.env.JWT_SECRET,
       {
-        expiresIn: "1h",
+        expiresIn: "100y",
       }
     );
 
