@@ -153,8 +153,7 @@ export const UpdateAttendance = () => {
                   "Fetch Attendance"
                 )}
               </Button>
-
-              {attendance.length > 0 && (
+              {attendance.length > 0 ? (
                 <div className="mt-5">
                   <h2 className="text-xl font-bold mb-4">
                     Attendance for{" "}
@@ -204,6 +203,10 @@ export const UpdateAttendance = () => {
                       </tbody>
                     </table>
                   </div>
+                </div>
+              ) : (
+                <div className="flex justify-center items-center h-[50vh]">
+                  <p className="text-center text-xl">No Attendance Record Found!</p>
                 </div>
               )}
             </div>
