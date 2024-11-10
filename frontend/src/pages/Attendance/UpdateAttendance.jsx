@@ -155,7 +155,7 @@ export const UpdateAttendance = () => {
               </Button>
               {attendance.length > 0 ? (
                 <div className="mt-5">
-                  <h2 className="text-xl font-bold mb-4">
+                  <h2 className="text-sm lg:text-xl font-bold mb-4">
                     Attendance for{" "}
                     {selectedDate
                       ? format(selectedDate, "MMMM dd, yyyy")

@@ -122,7 +122,7 @@ const getSingleEmployee = async (req, res) => {
 const deleteEmployee = async (req, res) => {
   try {
     const employeeId = req.params.id;
-
+    console.log(employeeId);
     // Find the employee by ID to get the image path
     const employee = await Employee.findById(employeeId);
 
@@ -133,12 +133,17 @@ const deleteEmployee = async (req, res) => {
       });
     }
 
-    // Get the image path (assuming the image is stored as a relative path in the database)
-    const imagePath = path.join(__dirname, "../uploads", employee.image);
+    // Get the image patzh (assuming the image is stored as a relative path in the database
+    if (employee.image) {
+      const imagePath = path.join(__dirname, "../uploads", employee.image);
 
-    if (fs.existsSync(imagePath)) {
-      fs.unlinkSync(imagePath); // Remove the file
+      if (fs.existsSync(imagePath)) {
+        fs.unlinkSync(imagePath); // Remove the file
+      }
     }
+
+   
+
 
     // Now delete the employee record from the database
     await Employee.findByIdAndDelete(employeeId);
