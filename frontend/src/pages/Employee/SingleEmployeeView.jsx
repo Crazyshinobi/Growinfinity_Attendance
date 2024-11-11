@@ -142,7 +142,7 @@ export const SingleEmployeeView = () => {
                             </div>
                             <div className="col-span-12 lg:col-span-3 flex flex-col items-center lg:justify-start lg:items-center">
                                 <img
-                                    src={`singleEmployee.image ? ${process.env.BASE_URL}/uploads${singleEmployee.image} : defaultUser`}
+                                    src={singleEmployee.image ? `${process.env.BASE_URL}/uploads${singleEmployee.image}` : defaultUser}
                                     alt={singleEmployee.name}
                                     className="lg:h-[250px] lg:w-[250px] h-[180px] w-[180px] rounded-[50%] lg:rounded-lg object-cover object-top mb-5 lg:mb-0"
                                 />
