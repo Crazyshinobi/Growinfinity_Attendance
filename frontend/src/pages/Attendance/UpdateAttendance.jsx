@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Cookies from "js-cookie";
 import { Layout } from "../../components/Layout";
 import toast, { Toaster } from "react-hot-toast";
@@ -21,13 +21,15 @@ import { format } from "date-fns";
 
 export const UpdateAttendance = () => {
   const [selectedDate, setSelectedDate] = useState(null);
+  const [employees, setEmployees] = useState([]);
   const [attendance, setAttendance] = useState([]);
   const [openModal, setOpenModal] = useState(false);
   const [currentAttendance, setCurrentAttendance] = useState(null);
   const [status, setStatus] = useState("");
   const [remarks, setRemarks] = useState("");
-  const [loading, setLoading] = useState(false); // Loader state for the fetch operation
-  const [updating, setUpdating] = useState(false); // Loader state for the update operation
+  const [loading, setLoading] = useState(false);
+  const [updating, setUpdating] = useState(false);
+  const [markingAttendance, setMarkingAttendance] = useState(false);
 
   const token = Cookies.get("token");
 
@@ -35,13 +37,33 @@ export const UpdateAttendance = () => {
     setSelectedDate(date);
   };
 
-  const fetchAttendance = async () => {
+  const fetchEmployees = async () => {
     try {
-      if (!selectedDate) {
-        toast.error("Select a Date");
-        return;
+      const apiUrl = `${process.env.BASE_URL}/api/v1/employee/`;
+      const response = await axios.get(apiUrl, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      if (response.data.success) {
+        setEmployees(response.data.employee);
+      } else {
+        toast.error("Failed to fetch employee data.");
       }
-      setLoading(true); // Show loader when fetching data
+    } catch (error) {
+      console.error("Error fetching employee data:", error);
+      toast.error("Error fetching employee data.");
+    }
+  };
+
+  const fetchAttendance = async () => {
+    if (!selectedDate) {
+      toast.error("Please select a date first.");
+      return;
+    }
+    try {
+      setLoading(true);
       const formattedDate = format(selectedDate, "yyyy-MM-dd");
       const apiUrl = `${process.env.BASE_URL}/api/v1/attendance/date?date=${formattedDate}`;
 
@@ -58,37 +80,55 @@ export const UpdateAttendance = () => {
         toast.error("Failed to fetch attendance data.");
       }
     } catch (error) {
-      console.log(error);
+      console.error("Error fetching attendance data:", error);
       toast.error("Error fetching attendance data.");
     } finally {
-      setLoading(false); // Hide loader when fetching is complete
+      setLoading(false);
     }
   };
 
-  const handleOpenModal = (attendanceItem) => {
-    setCurrentAttendance(attendanceItem);
-    setStatus(attendanceItem.status);
-    setRemarks(attendanceItem.remarks || "");
+  useEffect(() => {
+    fetchEmployees();
+  }, []);
+
+  const handleOpenModal = (attendanceItem = null, employeeItem = null) => {
+    if (attendanceItem) {
+      setCurrentAttendance(attendanceItem);
+      setStatus(attendanceItem.status || "");
+      setRemarks(attendanceItem.remarks || "");
+    } else if (employeeItem) {
+      setCurrentAttendance({
+        employeeId: employeeItem,
+      });
+      setStatus("");
+      setRemarks("");
+    }
     setOpenModal(true);
   };
 
   const handleCloseModal = () => {
     setOpenModal(false);
+    setCurrentAttendance(null);
     setStatus("");
     setRemarks("");
   };
 
   const handleUpdateAttendance = async () => {
-    try {
-      if (!status) {
-        toast.error("Status is required.");
-        return;
-      }
+    if (!status) {
+      toast.error("Status is required.");
+      return;
+    }
 
-      setUpdating(true); // Show loader when updating attendance
+    if (!currentAttendance || !currentAttendance._id) {
+      toast.error("Invalid attendance record.");
+      return;
+    }
+
+    try {
+      setUpdating(true);
       const updatedData = {
         status,
-        remarks: remarks || "", // remarks is optional
+        remarks: remarks || "",
       };
 
       const apiUrl = `${process.env.BASE_URL}/api/v1/attendance/update-attendance/${currentAttendance._id}`;
@@ -102,16 +142,63 @@ export const UpdateAttendance = () => {
 
       if (response.data.success) {
         toast.success("Attendance updated successfully!");
-        setOpenModal(false); // Close the modal after update
-        fetchAttendance(); // Fetch updated attendance data
+        handleCloseModal();
+        fetchAttendance();
       } else {
         toast.error("Failed to update attendance.");
       }
     } catch (error) {
-      console.log(error);
+      console.error("Error updating attendance:", error);
       toast.error("Error updating attendance.");
     } finally {
-      setUpdating(false); // Hide loader when update is complete
+      setUpdating(false);
+    }
+  };
+
+  const handleMarkAttendance = async () => {
+    if (!status) {
+      toast.error("Status is required.");
+      return;
+    }
+    if (!currentAttendance || !currentAttendance.employeeId || !currentAttendance.employeeId._id) {
+      toast.error("Invalid employee data.");
+      return;
+    }
+    if (!selectedDate) {
+      toast.error("Please select a date first.");
+      return;
+    }
+
+    try {
+      setMarkingAttendance(true);
+      const newAttendance = {
+        employeeId: currentAttendance.employeeId._id,
+        date: format(selectedDate, "yyyy-MM-dd"),
+        status,
+        remarks: remarks || "",
+      };
+
+      const apiUrl = `${process.env.BASE_URL}/api/v1/attendance/`;
+
+      const response = await axios.post(apiUrl, newAttendance, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.data.success) {
+        toast.success("Attendance marked successfully!");
+        handleCloseModal();
+        fetchAttendance();
+      } else {
+        toast.error("Failed to mark attendance.");
+      }
+    } catch (error) {
+      console.error("Error marking attendance:", error);
+      toast.error("Error marking attendance.");
+    } finally {
+      setMarkingAttendance(false);
     }
   };
 
@@ -145,7 +232,7 @@ export const UpdateAttendance = () => {
                 variant="contained"
                 size="small"
                 sx={{ textTransform: "none" }}
-                disabled={loading} // Disable button while loading
+                disabled={loading || !selectedDate}
               >
                 {loading ? (
                   <CircularProgress size={24} color="inherit" />
@@ -153,7 +240,8 @@ export const UpdateAttendance = () => {
                   "Fetch Attendance"
                 )}
               </Button>
-              {attendance.length > 0 ? (
+
+              {employees.length > 0 ? (
                 <div className="mt-5">
                   <h2 className="text-sm lg:text-xl font-bold mb-4">
                     Attendance for{" "}
@@ -173,47 +261,57 @@ export const UpdateAttendance = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {attendance.map((item, index) => (
-                          <tr key={index}>
-                            <td className="border p-2 text-center">
-                              {index + 1}
-                            </td>
-                            <td className="border p-2 text-center">
-                              {item.employeeId.name}
-                            </td>
-                            <td className="border p-2 text-center">
-                              {item.status}
-                            </td>
-                            <td className="border p-2 text-center">
-                              {item.remarks}
-                            </td>
-                            <td className="border p-2 text-center">
-                              <Button
-                                variant="contained"
-                                size="small"
-                                color="secondary"
-                                sx={{ textTransform: "none" }}
-                                onClick={() => handleOpenModal(item)}
-                              >
-                                Update
-                              </Button>
-                            </td>
-                          </tr>
-                        ))}
+                        {employees.map((emp, index) => {
+                          const attendanceRecord = attendance.find(
+                            (item) => item.employeeId._id === emp._id
+                          );
+                          return (
+                            <tr key={emp._id}>
+                              <td className="border p-2 text-center">
+                                {index + 1}
+                              </td>
+                              <td className="border p-2 text-center">
+                                {emp.name}
+                              </td>
+                              <td className="border p-2 text-center">
+                                {attendanceRecord
+                                  ? attendanceRecord.status
+                                  : "Not Marked"}
+                              </td>
+                              <td className="border p-2 text-center">
+                                {attendanceRecord
+                                  ? attendanceRecord.remarks
+                                  : "N/A"}
+                              </td>
+                              <td className="border p-2 text-center">
+                                <Button
+                                  variant={attendanceRecord ? "contained" : "outlined"}
+                                  size="small"
+                                  color={attendanceRecord ? "secondary" : "primary"}
+                                  sx={{ textTransform: "none" }}
+                                  onClick={() =>
+                                    handleOpenModal(attendanceRecord, emp)
+                                  }
+                                >
+                                  {attendanceRecord ? "Update" : "Mark Attendance"}
+                                </Button>
+                              </td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>
                 </div>
               ) : (
                 <div className="flex justify-center items-center h-[50vh]">
-                  <p className="text-center text-xl">No Attendance Record Found!</p>
+                  <p className="text-center text-xl">No Employees Found!</p>
                 </div>
               )}
             </div>
           </div>
         </div>
 
-        {/* Modal for updating attendance */}
         <Modal
           open={openModal}
           onClose={handleCloseModal}
@@ -232,10 +330,11 @@ export const UpdateAttendance = () => {
             }}
           >
             <Typography variant="h6" component="h2" gutterBottom>
-              Update Attendance for {currentAttendance?.employeeId?.name}
+              {currentAttendance && currentAttendance._id
+                ? `Update Attendance for ${currentAttendance.employeeId.name}`
+                : `Mark Attendance for ${currentAttendance?.employeeId?.name}`}
             </Typography>
 
-            {/* Display the selected date in the modal */}
             {selectedDate ? (
               <Typography variant="body1" gutterBottom>
                 <strong>Date:</strong> {format(selectedDate, "MMMM dd, yyyy")}
@@ -259,6 +358,7 @@ export const UpdateAttendance = () => {
                 <MenuItem value="holiday">Holiday</MenuItem>
               </Select>
             </FormControl>
+
             <TextField
               label="Remarks (optional)"
               fullWidth
@@ -268,17 +368,24 @@ export const UpdateAttendance = () => {
               onChange={(e) => setRemarks(e.target.value)}
               margin="normal"
             />
+
             <Button
               variant="contained"
               color="primary"
-              onClick={handleUpdateAttendance}
               fullWidth
-              disabled={updating} // Disable button while updating
+              onClick={
+                currentAttendance && currentAttendance._id
+                  ? handleUpdateAttendance
+                  : handleMarkAttendance
+              }
+              disabled={updating || markingAttendance}
             >
-              {updating ? (
+              {updating || markingAttendance ? (
                 <CircularProgress size={24} color="inherit" />
-              ) : (
+              ) : currentAttendance && currentAttendance._id ? (
                 "Update Attendance"
+              ) : (
+                "Mark Attendance"
               )}
             </Button>
           </Box>
@@ -287,3 +394,4 @@ export const UpdateAttendance = () => {
     </>
   );
 };
+
